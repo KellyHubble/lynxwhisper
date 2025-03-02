@@ -1,0 +1,13 @@
+[package]
+name = "lynxwhisper"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+whisper-rs = "0.11"  # Check latest version on crates.io
+tokio = { version = "1", features = ["full"] }
+cpal = "0.15"
+toml = "0.8"
+serde = { version = "1", features = ["derive"] }
+enigo = "0.1"
+rdev = "0.5"

@@ -1,0 +1,9 @@
+mode = "automatic"
+[model]
+path = "models/ggml-tiny.bin"
+[hotkeys]
+manual_start = "Ctrl+Shift+1"
+manual_stop = "Ctrl+Shift+2"
+automatic_toggle = "Ctrl+Shift+3"
+[automatic]
+chunk_interval = 5
