@@ -1,15 +1,25 @@
 # LynxWhisper
-Hear the whisper, catch the code—stealthy speech-to-text with a lynx’s precision.
 
-LynxWhisper is a cross-platform speech-to-text tool that types dictated text directly at your cursor using Whisper’s local model.
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px;">
+  <img src="assets/lynxwhisper_img.png" alt="LynxWhisper Logo" style="max-width: 200px; height: auto;">
+  <div style="flex: 1; min-width: 200px;">
+  <p>
+  Lynx hears you, whisper speech-to-text with a lynx’s precision.
+  </p>
+  <p>
+  <b>LynxWhisper</b> is a soon to be cross-platform speech-to-text tool that types dictated text directly at your cursor using Whisper’s local model.
+  </p>
+  </div>
+</div>
 
 ## Features
-- Speech-to-text at cursor position
-- Works on Linux, macOS, Windows
-- Offline transcription with Whisper
-- Hotkey support
-- Manual and automatic modes
-- Configurable settings
+- [x] OpenAi Whisper model integration (Tiny by default)
+- [x] Whisper model for offline transcription
+- [x] Speech-to-text at cursor position
+- [x] Hotkey support for manual and automatic modes
+- [x] Configurable settings for hotkeys and mode
+- [ ] Works on Linux (X11), macOS (WIP), Windows (WIP)
+
 
 ## Requirements
 
@@ -48,12 +58,14 @@ Ensure your microphone is active and the Whisper model path in `config.toml` is 
 Edit `config.toml` to set mode, model path, and hotkeys. See the sample file for details.
 
 ## License
-MIT
 
 
-## TODO
+## TODO and Reality
 - Current state of the project is hacky working
 - [ ] In auto mode, stop recording when a hotkey is pressed
 - [ ] add tests
 - [ ] build a UI to set and test hotkeys
 - [ ] build for windows or osx, currently only linux is supported
+
+
+[def]: assets/lynxwhisper_img.png#center#width-200px

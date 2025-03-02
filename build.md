@@ -25,7 +25,7 @@ To compile LynxWhisper, ensure you have:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/yourusername/lynxwhisper.git
+   git clone https://github.com/KellyHubble/lynxwhisper
    cd lynxwhisper
    ```
 2. Install Build Dependencies:
