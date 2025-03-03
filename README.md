@@ -62,10 +62,13 @@ Edit `config.toml` to set mode, model path, and hotkeys. See the sample file for
 
 ## TODO and Reality
 - Current state of the project is hacky working
-- [ ] In auto mode, stop recording when a hotkey is pressed
+- [x] In auto mode, stop recording when a hotkey is pressed
 - [ ] add tests
 - [ ] build a UI to set and test hotkeys
 - [ ] build for windows or osx, currently only linux is supported
+- [ ] answer the question: what about WASM target?
+- [ ] Add some pre and post processing.
+- [ ] Background noise handling and reduction (maybe noise cancellation :-O )
 
 
 [def]: assets/lynxwhisper_img.png#center#width-200px

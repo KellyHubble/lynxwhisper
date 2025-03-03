@@ -39,7 +39,7 @@ fn build_combo(keys: &HashSet<Key>, hotkeys: &Hotkeys) -> String {
     }
     let final_keys = [
         (Key::Num1, &hotkeys.manual_start),
-        (Key::Num1, &hotkeys.manual_stop),
+        (Key::Num2, &hotkeys.manual_stop),
         (Key::Num3, &hotkeys.automatic_toggle),
     ];
     for (key, config_key) in final_keys.iter() {
