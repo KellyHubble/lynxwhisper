@@ -2,6 +2,7 @@ use rdev::{listen, EventType, Key};
 use tokio::sync::mpsc::Sender;
 use std::collections::HashSet;
 use crate::config::Hotkeys;
+use crate::transcription::TranscriptionEngine;
 
 pub fn start_hotkey_listener(tx: Sender<String>, hotkeys: Hotkeys) {
     std::thread::spawn(move || {
@@ -80,4 +81,49 @@ pub fn matches_hotkey(event: &str, hotkey: &str) -> bool {
     let is_match = event == mapped_hotkey;
     println!("Event: {}, Mapped hotkey: {}, Match: {}", event, mapped_hotkey, is_match);
     is_match
+}
+
+pub async fn handle_hotkey(
+    hotkey: String,
+    config: &Hotkeys,
+    recording: &mut bool,
+    automatic_active: &mut bool,
+    audio_buffer: &mut Vec<i16>,
+    transcriber: &TranscriptionEngine,
+) {
+    println!("Hotkey: {}", hotkey);
+    match hotkey.as_str() {
+        _ if matches_hotkey(&hotkey, &config.automatic_toggle) => {
+            // Toggle automatic mode
+            *automatic_active = !*automatic_active;
+            println!("Auto toggle (Ctrl+Shift+3): {}", automatic_active);
+            if !*automatic_active {
+                *recording = false;
+                audio_buffer.clear();
+            }
+        }
+        _ if matches_hotkey(&hotkey, &config.manual_stop) && *recording => {
+            // Stop recording manually
+            *recording = false;
+            println!("Stop recording (Ctrl+Shift+2), buffer size: {}", audio_buffer.len());
+            if !audio_buffer.is_empty() {
+                let raw_text = transcriber.transcribe(&audio_buffer);
+                let text = crate::postprocess::clean_text(&raw_text);
+                println!("Text: {}", text);
+                if !text.is_empty() {
+                    crate::typing::type_text(&text);
+                } else {
+                    println!("No text");
+                }
+                audio_buffer.clear();
+            }
+        }
+        _ if matches_hotkey(&hotkey, &config.manual_start) && !*recording => {
+            // Start recording manually
+            *recording = true;
+            audio_buffer.clear();
+            println!("Start recording (Ctrl+Shift+1) in auto mode");
+        }
+        _ => {}
+    }
 }

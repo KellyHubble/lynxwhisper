@@ -25,6 +25,18 @@ async fn main() {
     const SILENCE_THRESHOLD: i16 = 3000; // for loud environments
     const SILENCE_CHUNKS: u32 = 10; // 
 
+    fn process_audio(transcriber: &transcription::TranscriptionEngine, audio_buffer: &mut Vec<i16>) {
+        let raw_text = transcriber.transcribe(audio_buffer);
+        let text = postprocess::clean_text(&raw_text);
+        println!("Text: {}", text);
+        if !text.is_empty() {
+            typing::type_text(&text);
+        } else {
+            println!("No text");
+        }
+        audio_buffer.clear();
+    }
+
     loop {
         tokio::select! {
             Some(audio_data) = audio_rx.recv() => {
@@ -33,72 +45,41 @@ async fn main() {
                     println!("Recording, buffer size: {}", audio_buffer.len());
                     let max_amplitude = audio_data.iter().map(|&x| x.abs()).max().unwrap_or(0);
                     println!("Max amplitude: {}", max_amplitude);
-                    if max_amplitude < SILENCE_THRESHOLD && automatic_active {
-                        silence_count += 1;
-                        println!("Silence detected, count: {}", silence_count);
-                        if silence_count >= SILENCE_CHUNKS {
-                            println!("Silence timeout, processing...");
-                            recording = false;
-                            if !audio_buffer.is_empty() {
-                                let raw_text = transcriber.transcribe(&audio_buffer);
-                                let text = postprocess::clean_text(&raw_text); 
-                                println!("Text: {}", text);
-                                if !text.is_empty() {
-                                    typing::type_text(&text);
-                                } else {
-                                    println!("No text");
+
+                    match max_amplitude {
+                        amplitude if amplitude < SILENCE_THRESHOLD && automatic_active => {
+                            silence_count += 1;
+                            println!("Silence detected, count: {}", silence_count);
+                            if silence_count >= SILENCE_CHUNKS {
+                                println!("Silence timeout, processing...");
+                                recording = false;
+                                if !audio_buffer.is_empty() {
+                                    process_audio(&transcriber, &mut audio_buffer);
                                 }
-                                audio_buffer.clear();
+                                silence_count = 0;
                             }
-                            silence_count = 0;
                         }
-                    } else if max_amplitude > SILENCE_THRESHOLD * 2 { //Speech detected
-                        silence_count = 0; // Reset silence counter
+                        amplitude if amplitude > SILENCE_THRESHOLD * 2 => {
+                            silence_count = 0; // Reset silence counter
+                        }
+                        _ => {}
                     }
                 }
             }
             Some(hotkey) = hotkey_rx.recv() => {
-                println!("Hotkey: {}", hotkey);
-                if hotkeys::matches_hotkey(&hotkey, &config.hotkeys.automatic_toggle) {
-                    // Toggle automatic mode
-                    automatic_active = !automatic_active;
-                    println!("Auto toggle (Ctrl+Shift+3): {}", automatic_active);
-                    if !automatic_active {
-                        recording = false;
-                        audio_buffer.clear();
-                    }
-                } else if hotkeys::matches_hotkey(&hotkey, &config.hotkeys.manual_stop) && recording {
-                    // Stop recording manually
-                    recording = false;
-                    println!("Stop recording (Ctrl+Shift+2), buffer size: {}", audio_buffer.len());
-                    if !audio_buffer.is_empty() {
-                        let raw_text = transcriber.transcribe(&audio_buffer);
-                        let text = postprocess::clean_text(&raw_text);
-                        println!("Text: {}", text);
-                        if !text.is_empty() {
-                            typing::type_text(&text);
-                        } else {
-                            println!("No text");
-                        }
-                        audio_buffer.clear();
-                    }
-                } else if hotkeys::matches_hotkey(&hotkey, &config.hotkeys.manual_start) && !recording {
-                    // Stop recording manually
-                    recording = true;
-                    audio_buffer.clear();
-                    println!("Start recording (Ctrl+Shift+1) in auto mode");
-                } 
+                hotkeys::handle_hotkey(
+                    hotkey,
+                    &config.hotkeys,
+                    &mut recording,
+                    &mut automatic_active,
+                    &mut audio_buffer,
+                    &transcriber,
+                ).await;
             }
             _ = sleep(Duration::from_secs(config.automatic.chunk_interval)) => {
                 if automatic_active && !recording && !audio_buffer.is_empty() {
                     println!("Auto transcribe (manual), buffer size: {}", audio_buffer.len());
-                    let raw_text = transcriber.transcribe(&audio_buffer);
-                    let text = postprocess::clean_text(&raw_text);
-                    println!("Auto text: {}", text);
-                    if !text.is_empty() {
-                        typing::type_text(&text);
-                    }
-                    audio_buffer.clear();
+                    process_audio(&transcriber, &mut audio_buffer);
                 }
             }
         }

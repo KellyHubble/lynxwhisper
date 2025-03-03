@@ -9,6 +9,12 @@
   <p>
   <b>LynxWhisper</b> is a soon to be cross-platform speech-to-text tool that types dictated text directly at your cursor using Whisper’s local model.
   </p>
+  <p>
+  <b>Working</b>, but still in <b>development</b>.
+  </p>
+  <p>
+  Easy as 1,2,3 to use press `ctrl+shift+1/2/3` to start/stop/toggle automatic stopping.
+  </p>
   </div>
 </div>
 
@@ -17,7 +23,7 @@
 - [x] Whisper model for offline transcription
 - [x] Speech-to-text at cursor position
 - [x] Hotkey support for manual and automatic modes
-- [x] Configurable settings for hotkeys and mode
+- [ ] Configurable settings for hotkeys and mode
 - [ ] Works on Linux (X11), macOS (WIP), Windows (WIP)
 
 
@@ -63,6 +69,7 @@ Edit `config.toml` to set mode, model path, and hotkeys. See the sample file for
 ## TODO and Reality
 - Current state of the project is hacky working
 - [x] In auto mode, stop recording when a hotkey is pressed
+- [ ] Hotkey's keys in config.toml are not working, currently hardcoded to `ctrl+shift+1/2/3`
 - [ ] add tests
 - [ ] build a UI to set and test hotkeys
 - [ ] build for windows or osx, currently only linux is supported
